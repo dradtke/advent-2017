@@ -26,8 +26,7 @@ gint main(void)
 	gsize length;
 	gchar *line;
 	while ((line = g_data_input_stream_read_line(stream, &length, NULL, &err)) != NULL) {
-		GScannerConfig config = {};
-		GScanner *scanner = g_scanner_new(&config);
+		GScanner *scanner = g_scanner_new(NULL);
 		g_scanner_input_text(scanner, line, length);
 
 		GList *numbers = NULL;

@@ -1,6 +1,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <gio/gio.h>
+#include <math.h>
 
 GDataInputStream *get_input(const gchar *name)
 {
@@ -21,31 +22,35 @@ gint main(void)
 		return 1;
 	}
 
-	gulong total = 0;
+	GHashTable *words = g_hash_table_new(g_str_hash, g_str_equal);
+	gint count = 0;
+
 	GError *err = NULL;
 	gsize length;
 	gchar *line;
 	while ((line = g_data_input_stream_read_line(stream, &length, NULL, &err)) != NULL) {
 		GScanner *scanner = g_scanner_new(NULL);
 		g_scanner_input_text(scanner, line, length);
-
-		gulong smallest = 0, biggest = 0;
+		gint valid = 1;
 
 		while (g_scanner_get_next_token(scanner) != G_TOKEN_EOF) {
-			if (scanner->token != G_TOKEN_INT) {
-				continue;
+			if (scanner->token != G_TOKEN_IDENTIFIER) {
+				g_printerr("found a non-identifier token: %d\n", scanner->token);
+				return 1;
 			}
 
-			gulong v = scanner->value.v_int;
-			if (smallest == 0 || v < smallest) {
-				smallest = v;
+			gchar *word = scanner->value.v_identifier;
+			if (g_hash_table_lookup(words, word) != NULL) {
+				valid = 0;
 			}
-			if (biggest == 0 || v > biggest) {
-				biggest = v;
-			}
+			g_hash_table_insert(words, word, GINT_TO_POINTER(1));
 		}
 
-		total += (biggest - smallest);
+		if (valid) {
+			count++;
+		}
+
+		g_hash_table_remove_all(words);
 	}
 
 	if (err != NULL) {
@@ -53,7 +58,5 @@ gint main(void)
 		return 1;
 	}
 
-	g_print("%lu\n", total);
-
-	return 0;
+	g_print("%d\n", count);
 }
