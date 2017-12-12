@@ -1,7 +1,6 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <gio/gio.h>
-#include <math.h>
 
 GDataInputStream *get_input(const gchar *name)
 {
