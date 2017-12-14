@@ -3,22 +3,6 @@
 #include <fcntl.h>
 
 
-gchar *get_input(const gchar *name)
-{
-	gchar *input;
-	GError *err = NULL;
-
-	g_file_get_contents(name, &input, NULL, &err);
-	g_assert((input == NULL && err != NULL) || (input != NULL && err == NULL));
-	if (err != NULL) {
-		g_assert(input == NULL);
-		g_printerr("unable to read file: %s\n", err->message);
-		return NULL;
-	}
-	g_strchomp(input);
-	return input;
-}
-
 gint main(void)
 {
 	gint fd = g_open("input.txt", O_RDONLY, 0);
