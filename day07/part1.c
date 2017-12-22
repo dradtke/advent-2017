@@ -35,19 +35,20 @@ gint main(void)
 	gchar *line;
 	GMatchInfo *info = NULL;
 	while ((line = g_data_input_stream_read_line(stream, &length, NULL, &err)) != NULL) {
-		if (g_regex_match(regex, line, 0, &info)) {
-			gchar *id = g_match_info_fetch_named(info, "id");
-			if (!g_hash_table_contains(carry_counts, id))
-				g_hash_table_insert(carry_counts, g_strdup(id), GINT_TO_POINTER(0));
+		if (!g_regex_match(regex, line, 0, &info))
+			continue;
 
-			gchar *above = g_match_info_fetch_named(info, "above");
-			if (above) {
-				gchar **above_list = g_strsplit(above, ", ", 0);
-				for (int i = 0; above_list[i]; i++) {
-					g_hash_table_insert(carry_counts, g_strdup(above_list[i]), GINT_TO_POINTER(1));
-				}
-				g_strfreev(above_list);
+		gchar *id = g_match_info_fetch_named(info, "id");
+		if (!g_hash_table_contains(carry_counts, id))
+			g_hash_table_insert(carry_counts, g_strdup(id), GINT_TO_POINTER(0));
+
+		gchar *above = g_match_info_fetch_named(info, "above");
+		if (above) {
+			gchar **above_list = g_strsplit(above, ", ", 0);
+			for (int i = 0; above_list[i]; i++) {
+				g_hash_table_insert(carry_counts, g_strdup(above_list[i]), GINT_TO_POINTER(1));
 			}
+			g_strfreev(above_list);
 		}
 	}
 
